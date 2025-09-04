@@ -39,7 +39,6 @@ void Customer::addOrderToHistory(int orderId) {
     this->orderHistory.push_back(orderId);
 }
 
-
 int Customer::getTotalOrders() const {
     return orderHistory.size();
 }

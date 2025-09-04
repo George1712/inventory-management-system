@@ -1,6 +1,3 @@
-// g++ -std=c++17 *.cpp -o program
-// \.program.exe
-
 #include <iostream>
 #include <string>
 #include "Inventory.h"

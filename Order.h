@@ -4,6 +4,7 @@
 #include<iostream>
 #include<string>
 #include<vector>
+#include<unordered_map>
 using namespace std;
 
 class OrderItem {
@@ -15,8 +16,7 @@ private:
 
 public:
     // Constructor
-    OrderItem(int itemId, string itemName,
-         int quantity, double unitPrice);
+    OrderItem(int itemId, string itemName, int quantity, double unitPrice);
 
     // Getters
     int getItemId() const;
@@ -25,6 +25,7 @@ public:
     double getUnitPrice() const;
     
     // Methods
+    void updateQuantity(int newQuantity);
     double getTotalPrice() const;
     void display() const;
 };
@@ -37,7 +38,7 @@ private:
     string customerName;
     string orderDate;
     string status; // "PENDING", "PROCESSING", "COMPLETED", "CANCELLED"
-    vector<OrderItem> items;
+    unordered_map<int, OrderItem> items;
     double totalAmount;
 
 public:
@@ -52,13 +53,23 @@ public:
     string getStatus() const;
     double getTotalAmount() const;
     vector<OrderItem> getItems() const;
+    int getItemQuantity(int itemId) const;
     
-    // Order operations
-    void addItem(OrderItem item);
-    bool removeItem(int productId);
-    void calculateTotal();
+    // Setters
     void setStatus(string newStatus);
+    void updateTotal(double amountChange);
+
+    // Actions
+    void addItem(OrderItem item);
+    bool removeItem(int itemId);
+    bool updateItemQuantity(int itemId, int newQuantity);
     
+    // Status
+    bool isPending() const;
+    bool isProcessing() const;
+    bool isCompleted() const;
+    bool isCancelled() const;
+
     void display() const;
 };
 
