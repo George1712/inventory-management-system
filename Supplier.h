@@ -14,7 +14,8 @@ private:
     string address;
 
 public:
-    // Constructor
+    // Constructors
+    Supplier() : supplierId(0) {}
     Supplier(int id, string name, string phone,
          string email, string address);
     

@@ -16,7 +16,8 @@ private:
     int minStockLevel;
 
 public:
-    // Constructor
+    // Constructors
+    Product() : productID(0), price(0.0), quantityInStock(0), supplierId(0), minStockLevel(0) {}
     Product(int id, string name, string desc, double price, 
         int quantity, int supplierId, int minStock = 5);
     

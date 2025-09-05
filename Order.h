@@ -15,7 +15,8 @@ private:
     double unitPrice;
 
 public:
-    // Constructor
+    // Constructors
+    OrderItem() : itemId(0), quantity(0), unitPrice(0.0) {}
     OrderItem(int itemId, string itemName, int quantity, double unitPrice);
 
     // Getters
@@ -42,7 +43,8 @@ private:
     double totalAmount;
 
 public:
-    // Constructor
+    // Constructors
+    Order() : orderId(0), customerId(0), totalAmount(0.0) {}
     Order(int id, int customerId, string customerName, string date);
     
     // Getters
