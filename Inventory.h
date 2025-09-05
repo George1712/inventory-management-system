@@ -50,7 +50,7 @@ public:
     bool sellProduct(int productId, int quantity);
     void updateLowStockStatus(int productId, int newQuantity, int minStockLevel);
     bool updateProductMinStockLevel(int productId, int newMinStocklevel);
-    vector<Product*> getLowStockProducts();
+    vector<Product*> getLowStockProducts() const;
     
     // Supplier management
     void addSupplier(Supplier supplier);
@@ -62,7 +62,7 @@ public:
     // Customer management
     void addCustomer(Customer customer);
     bool removeCustomer(int customerId);
-    Customer* findCustomerById(int customerId);
+    Customer* findCustomerById(int customerId) const;
     vector<Customer*> findCustomerByName(string name);
     vector<Customer> getAllCustomers() const;
     
@@ -80,7 +80,13 @@ public:
     vector<Order> getAllOrders() const;
 
     // Reporting
-    
+    double calculateTotalInventoryValue() const;
+    double calculateTotalRevenue() const;
+    void generateInventoryReport() const;
+    void generateSalesReport() const;
+    void generateLowStockReport() const;
+    void generateCustomerReport(int customerId) const;
+    void generateSupplierReport() const;
 };
 
 #endif

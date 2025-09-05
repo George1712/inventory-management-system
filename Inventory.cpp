@@ -89,12 +89,12 @@ bool Inventory::updateProductMinStockLevel(int productId, int newMinStockLevel) 
     updateLowStockStatus(productId, it->second.getQuantity(), newMinStockLevel);
     return true;
 }
-vector<Product*> Inventory::getLowStockProducts() {
+vector<Product*> Inventory::getLowStockProducts() const {
     vector<Product*> result;
     for (auto id : lowStockProductIds) {
         auto it = products.find(id);
         if (it != products.end()) {
-            result.push_back(&(it->second));
+            result.push_back(const_cast<Product*>(&(it->second)));
         }
     }
     return result;
@@ -179,10 +179,10 @@ bool Inventory::removeCustomer(int customerId) {
     return false;
 }
 
-Customer* Inventory::findCustomerById(int customerId) {
+Customer* Inventory::findCustomerById(int customerId) const {
     auto it = customers.find(customerId);
     if (it != customers.end()) {
-        return &(it->second);
+        return const_cast<Customer*>(&(it->second));
     }
     return nullptr;
 }
@@ -344,3 +344,148 @@ vector<Order> Inventory::getAllOrders() const {
 // -------------- Reports -------------- //
 
 
+double Inventory::calculateTotalInventoryValue() const {
+    double totalValue = 0.0;
+    for (const auto& pair : products) {
+        const Product& product = pair.second;
+        totalValue += product.getPrice() * product.getQuantity();
+    }
+    return totalValue;
+}
+
+double Inventory::calculateTotalRevenue() const {
+    double totalRevenue = 0.0;
+    for (const auto& pair : orders) {
+        const Order& order = pair.second;
+        if (order.isCompleted()) {
+            totalRevenue += order.getTotalAmount();
+        }
+    }
+    return totalRevenue;
+}
+
+void Inventory::generateInventoryReport() const {
+    cout << "=== INVENTORY REPORT ===" << endl;
+    cout << "Total Products: " << products.size() << endl;
+    cout << "Total Inventory Value: $" << calculateTotalInventoryValue() << endl;
+    cout << "Low Stock Items: " << getLowStockProducts().size() << endl;
+    cout << "----------------------------------------" << endl;
+    
+    for (const auto& pair : products) {
+        const Product& product = pair.second;
+        cout << "ID: " << product.getId() 
+             << " | Name: " << product.getName()
+             << " | Stock: " << product.getQuantity()
+             << " | Price: $" << product.getPrice()
+             << " | Status: " << (product.isLowStock() ? "LOW STOCK" : "OK") 
+             << endl;
+    }
+}
+
+void Inventory::generateSalesReport() const {
+    cout << "=== SALES REPORT ===" << endl;
+    cout << "Total Orders: " << orders.size() << endl;
+    cout << "Total Revenue: $" << calculateTotalRevenue() << endl;
+    
+    vector<Order> completedOrders;
+    // Count orders by status
+    int pending = 0, completed = 0, cancelled = 0;
+    for (const auto& [id, order] : orders) {
+        if (order.isPending()) { 
+            pending++;
+        } else if (order.isCompleted()) {
+            completed++;
+            completedOrders.push_back(order);
+        } else if (order.isCancelled()) {
+            cancelled++;
+        } 
+    }
+    
+    cout << "Pending Orders: " << pending << endl;
+    cout << "Completed Orders: " << completed << endl;
+    cout << "Cancelled Orders: " << cancelled << endl;
+    cout << "----------------------------------------" << endl;
+    
+    // Show recent completed orders
+    cout << "Recent Completed Orders:" << endl;
+    for (const auto& order : completedOrders) {
+        cout << "Order #" << order.getId() 
+             << " | Customer: " << order.getCustomerName()
+             << " | Total: $" << order.getTotalAmount()
+             << " | Date: " << order.getOrderDate() 
+             << endl;
+    }
+}
+
+void Inventory::generateLowStockReport() const {
+    cout << "=== LOW STOCK REPORT ===" << endl;
+    vector<Product*> lowStock = getLowStockProducts();
+    
+    if (lowStock.empty()) {
+        cout << "No products are low on stock." << endl;
+        return;
+    }
+    
+    cout << "Low Stock Products (" << lowStock.size() << "):" << endl;
+    for (const Product* product : lowStock) {
+        cout << "ID: " << product->getId() 
+             << " | Name: " << product->getName()
+             << " | Current Stock: " << product->getQuantity()
+             << " | Minimum Required: " << product->getMinStockLevel()
+             << " | Deficit: " << (product->getMinStockLevel() - product->getQuantity())
+             << endl;
+    }
+}
+
+void Inventory::generateCustomerReport(int customerId) const {
+    Customer* customer = findCustomerById(customerId);
+    if (!customer) {
+        cout << "Customer not found." << endl;
+        return;
+    }
+    
+    cout << "=== CUSTOMER REPORT ===" << endl;
+    cout << "Customer ID: " << customer->getId() << endl;
+    cout << "Name: " << customer->getName() << endl;
+    cout << "Total Orders: " << customer->getOrderHistory().size() << endl;
+    cout << "----------------------------------------" << endl;
+    
+    vector<Order> customerOrders = getOrdersByCustomer(customerId);
+    double totalSpent = 0.0;
+    
+    cout << "Order History:" << endl;
+    for (const Order& order : customerOrders) {
+        cout << "Order #" << order.getId() 
+             << " | Date: " << order.getOrderDate()
+             << " | Status: " << order.getStatus()
+             << " | Total: $" << order.getTotalAmount()
+             << endl;
+        totalSpent += order.getTotalAmount();
+    }
+    
+    cout << "Total Amount Spent: $" << totalSpent << endl;
+}
+
+void Inventory::generateSupplierReport() const {
+    cout << "=== SUPPLIER REPORT ===" << endl;
+    cout << "Total Suppliers: " << suppliers.size() << endl;
+    cout << "----------------------------------------" << endl;
+    
+    for (const auto& pair : suppliers) {
+        const Supplier& supplier = pair.second;
+        cout << "ID: " << supplier.getId() 
+             << " | Name: " << supplier.getName()
+             << " | Contact: " << supplier.getEmail() << " / " << supplier.getPhone()
+             << endl;
+        
+        // Count products from this supplier
+        int productCount = 0;
+        for (const auto& productPair : products) {
+            if (productPair.second.getSupplierId() == supplier.getId()) {
+                productCount++;
+            }
+        }
+        
+        cout << "   Products Supplied: " << productCount << endl;
+    }
+}
