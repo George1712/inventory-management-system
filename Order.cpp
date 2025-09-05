@@ -116,9 +116,6 @@ int Order::getItemQuantity(int itemId) const {
 bool Order::isPending() const {
     return status == "PENDING";
 }
-bool Order::isProcessing() const {
-    return status == "PROCESSING";
-}
 bool Order::isCompleted() const {
     return status == "COMPLETED";
 }

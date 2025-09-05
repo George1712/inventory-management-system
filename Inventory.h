@@ -6,13 +6,16 @@
 #include<vector>
 #include<unordered_map>
 #include<set>
+#include<chrono>
+#include<ctime>
+#include<sstream>
+#include<iomanip>
+using namespace std;
 
 #include "Product.h"
 #include "Supplier.h"
 #include "Order.h"
 #include "Customer.h"
-
-using namespace std;
 
 class Inventory {
 private:
@@ -20,6 +23,7 @@ private:
     unordered_map<int, Product> products;
     unordered_map<string, set<int>> productNameIds;
     set<int> lowStockProductIds;
+    int nextProductId;
 
     // Supplier
     unordered_map<int, Supplier> suppliers;
@@ -29,13 +33,9 @@ private:
     unordered_map<int, Customer> customers;
     unordered_map<string, set<int>> customerNameIds;
 
-
-
-
-    vector<Order> orders;
-
-
-    int nextProductId;
+    // Order
+    unordered_map<int, Order> orders;
+    unordered_map<int, set<int>> customerOrders; // [custID, orders]
     int nextOrderId;
 
 public:
@@ -66,23 +66,21 @@ public:
     vector<Customer*> findCustomerByName(string name);
     vector<Customer> getAllCustomers() const;
     
-
-
-
-    
     // Order management
+    string getCurrentDateTime() const;
     Order* createOrder(int customerId);
+    bool addItemToOrder(int orderId, int productId, int quantity);
+    bool updateOrderItemQuantity(int orderId, int productId, int newQuantity);
     bool processOrder(int orderId);
-    vector<Order> getOrdersByCustomer(int customerId);
-    
-
-
-
-
+    bool cancelOrder(int orderId);
+    Order* findOrderById(int orderId);
+    vector<Order> getOrdersByCustomer(int customerId) const;
+    vector<Order> getOrdersByStatus(string status) const;
+    string getOrderSummary(int orderId) const;
+    vector<Order> getAllOrders() const;
 
     // Reporting
-    double calculateTotalInventoryValue() const;
-    void generateInventoryReport() const;
+    
 };
 
 #endif

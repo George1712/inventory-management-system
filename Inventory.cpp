@@ -207,16 +207,138 @@ vector<Customer> Inventory::getAllCustomers() const {
 
 // -------------- Order Management -------------- //
 
+// Utility Method
+string Inventory::getCurrentDateTime() const {
+    using namespace chrono;
+    auto now = system_clock::now();
+    time_t t = system_clock::to_time_t(now);
+    tm local_tm = *localtime(&t);
+    ostringstream oss;
+    oss << put_time(&local_tm, "%d-%m-%y %H:%M:%S");
+    return oss.str();
+}
 
-
-
-
-
-
-
-
-
-
+Order* Inventory::createOrder(int customerId) {
+    Customer* customer = findCustomerById(customerId);
+    if (!customer) {
+        return nullptr; // Customer doesn't exist
+    }
+    int orderId = nextOrderId++;
+    Order newOrder(orderId, customerId, customer->getName(), getCurrentDateTime());
+    orders[orderId] = newOrder;
+    customer->addOrderToHistory(orderId);
+    customerOrders[customerId].insert(orderId);
+    return &orders[orderId];
+}
+bool Inventory::addItemToOrder(int orderId, int productId, int quantity) {
+    Order *order = findOrderById(orderId);
+    Product* product = findProductById(productId);
+    if (!order || !product || quantity <= 0) {
+        return false; // Invalid
+    }
+    if (!order->isPending()) {
+        return false; // completed or cancelled order (can't modify)
+    }
+    if (product->getQuantity() < quantity) {
+        return false;
+    }
+    OrderItem item(productId, product->getName(), quantity, product->getPrice());
+    order->addItem(item);
+    return true;
+}
+bool Inventory::updateOrderItemQuantity(int orderId, int productId, int newQuantity) {
+    Order* order = findOrderById(orderId);
+    Product* product = findProductById(productId);
+    if (!order || !product || newQuantity <= 0 || !order->isPending()) {
+        return false;
+    }
+    if (product -> getQuantity() < newQuantity) {
+        return false;
+    }
+    return order -> updateItemQuantity(productId, newQuantity);
+}
+bool Inventory::processOrder(int orderId) {
+    auto orderIt = orders.find(orderId);
+    if (orderIt == orders.end() || !orderIt->second.isPending()) {
+        return false;
+    }
+    Order &order = orderIt->second;
+    vector<OrderItem> orderItems = order.getItems();
+    for (const auto &item : orderItems) {
+        Product* product = findProductById(item.getItemId());
+        if (!product || product->getQuantity() < item.getQuantity()) {
+            return false;
+        }
+    }
+    for (const auto &item : orderItems) {
+        sellProduct(item.getItemId(), item.getQuantity());
+    }
+    order.setStatus("COMPLETED");
+    return true;
+}
+bool Inventory::cancelOrder(int orderId) {
+    auto orderIt = orders.find(orderId);
+    if (orderIt == orders.end() || !orderIt->second.isPending()) {
+        return false;
+    }
+    orderIt->second.setStatus("CANCELLED");
+    return true;
+}
+Order* Inventory::findOrderById(int orderId) {
+    auto it = orders.find(orderId);
+    if (it != orders.end()) {
+        return &(it->second);
+    }
+    return nullptr;
+}
+vector<Order> Inventory::getOrdersByCustomer(int customerId) const {
+    vector<Order> result;
+    auto it = customerOrders.find(customerId);
+    if (it != customerOrders.end()) {
+        for (const int &orderId : it->second) {
+            auto orderIt = orders.find(orderId);
+            if (orderIt != orders.end()) {
+                result.push_back(orderIt->second);
+            }
+        }
+    }
+    return result;
+}
+vector<Order> Inventory::getOrdersByStatus(string status) const {
+    vector<Order> result;
+    for (const auto &[id, order] : orders) {
+        if (order.getStatus() == status) {
+            result.push_back(order);
+        }
+    }
+    return result;
+}
+string Inventory::getOrderSummary(int orderId) const {
+    auto it = orders.find(orderId);
+    if (it == orders.end()) {
+        return "Order not found";
+    }
+    const Order& order = it->second;
+    stringstream ss;
+    ss << "Order #" << order.getId() << "\n";
+    ss << "Customer: " << order.getCustomerName() << "\n";
+    ss << "Status: " << order.getStatus() << "\n";
+    ss << "Total: $" << order.getTotalAmount() << "\n";
+    ss << "Items:\n";
+    
+    for (const auto& item : order.getItems()) {
+        ss << "  - " << item.getItemName() << " (x" << item.getQuantity() 
+           << ") @ $" << item.getUnitPrice() << " each\n";
+    }
+    return ss.str();
+}
+vector<Order> Inventory::getAllOrders() const {
+    vector<Order> result;
+    for (const auto &[id, order] : orders) {
+        result.push_back(order);
+    }
+    return result;
+}
 
 
 // -------------- Reports -------------- //

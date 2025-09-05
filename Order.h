@@ -37,7 +37,7 @@ private:
     int customerId;
     string customerName;
     string orderDate;
-    string status; // "PENDING", "PROCESSING", "COMPLETED", "CANCELLED"
+    string status; // "PENDING", "COMPLETED", "CANCELLED"
     unordered_map<int, OrderItem> items;
     double totalAmount;
 
