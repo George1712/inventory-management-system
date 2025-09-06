@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <limits>
 
 #include "Inventory.h"
 #include "Product.h"
@@ -23,7 +22,6 @@ int main() {
     int choice;
     
     cout << "=== INVENTORY MANAGEMENT SYSTEM ===" << endl;
-    cout << "Initializing system..." << endl;
     
     do {
         displayMainMenu();
@@ -47,7 +45,7 @@ int main() {
             case 5:
                 handleReports(inventory);
                 break;
-            case 6:
+            case 0:
                 cout << "Exiting system. Goodbye!" << endl;
                 break;
             default:
@@ -55,7 +53,7 @@ int main() {
         }
         
         cout << endl;
-    } while(choice != 6);
+    } while(choice);
     
     return 0;
 }
@@ -67,7 +65,7 @@ void displayMainMenu() {
     cout << "3. Customer Management" << endl;
     cout << "4. Order Management" << endl;
     cout << "5. Reports" << endl;
-    cout << "6. Exit" << endl;
+    cout << "0. Exit" << endl;
 }
 
 void handleProductManagement(Inventory& inventory) {
@@ -82,7 +80,7 @@ void handleProductManagement(Inventory& inventory) {
         cout << "6. Sell Product" << endl;
         cout << "7. Update Minimum Stock Level" << endl;
         cout << "8. View Low Stock Products" << endl;
-        cout << "9. Back to Main Menu" << endl;
+        cout << "0. Back to Main Menu" << endl;
         cout << "Enter your choice: ";
         cin >> choice;
         clearInputBuffer();
@@ -106,12 +104,10 @@ void handleProductManagement(Inventory& inventory) {
                 cout << "Enter minimum stock level: ";
                 cin >> minStock;
                 
-                // Generate a product ID (in a real system, this would be auto-incremented)
-                int productId = rand() % 1000 + 100;
-                Product newProduct(productId, name, description, price, quantity, supplierId, minStock);
-                inventory.addProduct(newProduct);
+                Product newProduct(0, name, description, price, quantity, supplierId, minStock);
+                int productId = inventory.addProduct(newProduct);
                 
-                cout << "Product added successfully with ID: " << productId << endl;
+                cout << "Product added successfully with ID: " << supplierId << endl;
                 break;
             }
             case 2: {
@@ -210,13 +206,13 @@ void handleProductManagement(Inventory& inventory) {
                 }
                 break;
             }
-            case 9:
+            case 0:
                 cout << "Returning to main menu." << endl;
                 break;
             default:
                 cout << "Invalid choice. Please try again." << endl;
         }
-    } while(choice != 9);
+    } while(choice);
 }
 
 void handleSupplierManagement(Inventory& inventory) {
@@ -228,7 +224,7 @@ void handleSupplierManagement(Inventory& inventory) {
         cout << "3. Find Supplier by ID" << endl;
         cout << "4. Find Suppliers by Name" << endl;
         cout << "5. View All Suppliers" << endl;
-        cout << "6. Back to Main Menu" << endl;
+        cout << "0. Back to Main Menu" << endl;
         cout << "Enter your choice: ";
         cin >> choice;
         clearInputBuffer();
@@ -246,9 +242,8 @@ void handleSupplierManagement(Inventory& inventory) {
                 cout << "Enter supplier address: ";
                 getline(cin, address);
                 
-                int supplierId = rand() % 1000 + 100;
-                Supplier newSupplier(supplierId, name, phone, email, address);
-                inventory.addSupplier(newSupplier);
+                Supplier newSupplier(0, name, phone, email, address);
+                int supplierId = inventory.addSupplier(newSupplier);
                 
                 cout << "Supplier added successfully with ID: " << supplierId << endl;
                 break;
@@ -306,13 +301,13 @@ void handleSupplierManagement(Inventory& inventory) {
                 }
                 break;
             }
-            case 6:
+            case 0:
                 cout << "Returning to main menu." << endl;
                 break;
             default:
                 cout << "Invalid choice. Please try again." << endl;
         }
-    } while(choice != 6);
+    } while(choice);
 }
 
 void handleCustomerManagement(Inventory& inventory) {
@@ -324,7 +319,7 @@ void handleCustomerManagement(Inventory& inventory) {
         cout << "3. Find Customer by ID" << endl;
         cout << "4. Find Customers by Name" << endl;
         cout << "5. View All Customers" << endl;
-        cout << "6. Back to Main Menu" << endl;
+        cout << "0. Back to Main Menu" << endl;
         cout << "Enter your choice: ";
         cin >> choice;
         clearInputBuffer();
@@ -342,9 +337,8 @@ void handleCustomerManagement(Inventory& inventory) {
                 cout << "Enter customer address: ";
                 getline(cin, address);
                 
-                int customerId = rand() % 1000 + 100;
-                Customer newCustomer(customerId, name, phone, email, address);
-                inventory.addCustomer(newCustomer);
+                Customer newCustomer(0, name, phone, email, address);
+                int customerId = inventory.addCustomer(newCustomer);
                 
                 cout << "Customer added successfully with ID: " << customerId << endl;
                 break;
@@ -402,13 +396,13 @@ void handleCustomerManagement(Inventory& inventory) {
                 }
                 break;
             }
-            case 6:
+            case 0:
                 cout << "Returning to main menu." << endl;
                 break;
             default:
                 cout << "Invalid choice. Please try again." << endl;
         }
-    } while(choice != 6);
+    } while(choice);
 }
 
 void handleOrderManagement(Inventory& inventory) {
@@ -422,7 +416,7 @@ void handleOrderManagement(Inventory& inventory) {
         cout << "5. Find Order by ID" << endl;
         cout << "6. View Customer Orders" << endl;
         cout << "7. View Orders by Status" << endl;
-        cout << "8. Back to Main Menu" << endl;
+        cout << "0. Back to Main Menu" << endl;
         cout << "Enter your choice: ";
         cin >> choice;
         clearInputBuffer();
@@ -526,13 +520,13 @@ void handleOrderManagement(Inventory& inventory) {
                 }
                 break;
             }
-            case 8:
+            case 0:
                 cout << "Returning to main menu." << endl;
                 break;
             default:
                 cout << "Invalid choice. Please try again." << endl;
         }
-    } while(choice != 8);
+    } while(choice);
 }
 
 void handleReports(Inventory& inventory) {
@@ -545,7 +539,7 @@ void handleReports(Inventory& inventory) {
         cout << "4. Customer Report" << endl;
         cout << "5. Supplier Report" << endl;
         cout << "6. Order Summary" << endl;
-        cout << "7. Back to Main Menu" << endl;
+        cout << "0. Back to Main Menu" << endl;
         cout << "Enter your choice: ";
         cin >> choice;
         clearInputBuffer();
@@ -577,13 +571,13 @@ void handleReports(Inventory& inventory) {
                 cout << inventory.getOrderSummary(orderId) << endl;
                 break;
             }
-            case 7:
+            case 0:
                 cout << "Returning to main menu." << endl;
                 break;
             default:
                 cout << "Invalid choice. Please try again." << endl;
         }
-    } while(choice != 7);
+    } while(choice);
 }
 
 void clearInputBuffer() {

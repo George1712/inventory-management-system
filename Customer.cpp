@@ -25,6 +25,9 @@ vector<int> Customer::getOrderHistory() const {
 }
 
 // Setters
+void Customer::setId(int newId) {
+    this->customerId = newId;
+}
 void Customer::setPhone(string newPhone) {
     this->phone = newPhone;
 }

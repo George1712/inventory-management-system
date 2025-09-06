@@ -30,6 +30,7 @@ public:
     vector<int> getOrderHistory() const;
 
     // Setters
+    void setId(int newId);
     void setPhone(string newPhone);
     void setEmail(string newEmail);
     void setAddress(string newAddress);

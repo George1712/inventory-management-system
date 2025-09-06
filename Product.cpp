@@ -3,13 +3,13 @@
 // Constructor
 Product::Product(int id, string name, string desc, double price, 
     int quantity, int supplierId, int minStock) : 
-    productID(id), name(name), description(desc), price(price), 
+    productId(id), name(name), description(desc), price(price), 
     quantityInStock(quantity), supplierId(supplierId), minStockLevel(minStock) {}
 
 
 // Getters
 int Product::getId() const {
-    return productID;
+    return productId;
 }
 string Product::getName() const {
     return name;
@@ -32,6 +32,10 @@ int Product::getMinStockLevel() const {
 
 
 // Setters
+
+void Product::setId(int newId) {
+    this->productId = newId;
+}
 void Product::setPrice(double newPrice) {
     this->price = newPrice;
 }
@@ -51,7 +55,7 @@ bool Product::isLowStock() const {
     return quantityInStock < minStockLevel;
 }
 void Product::display() const {
-    cout << "Product ID: " << productID << endl;
+    cout << "Product ID: " << productId << endl;
     cout << "Name: " << name << endl;
     cout << "Description: " << description << endl;
     cout << "Price: $" << price << endl;

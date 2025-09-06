@@ -1,18 +1,23 @@
 #include "Inventory.h"
 
 // Constructor
-Inventory::Inventory() : nextProductId(1), nextOrderId(1) {}
+Inventory::Inventory() : 
+nextProductId(1), nextOrderId(1),
+nextSupplierId(1), nextCustomerId(1) {}
 
 
 // -------------- Product Management -------------- //
 
-void Inventory::addProduct(Product product) {
-    int id = product.getId();
+int Inventory::addProduct(Product product) {
+    int id = nextProductId++;
+    product.setId(id);
+
     products[id] = product;
     string name = product.getName();
     productNameIds[name].insert(id);
-    
+
     updateLowStockStatus(id, product.getQuantity(), product.getMinStockLevel());
+    return id;
 }
 bool Inventory::removeProduct(int productId) {
     auto productIt = products.find(productId); // = [id, Product]
@@ -33,19 +38,19 @@ bool Inventory::removeProduct(int productId) {
     }
     return false;
 }
-Product* Inventory::findProductById(int productId) {
+Product* Inventory::findProductById(int productId) const {
     auto it = products.find(productId);
     if (it != products.end()) {
-        return &(it->second);
+        return const_cast<Product*>(&(it->second));
     }
     return nullptr;
 }
-vector<Product*> Inventory::findProductsByName(string name) {
+vector<Product*> Inventory::findProductsByName(string name) const {
     vector<Product*> result;
     auto it = productNameIds.find(name);
     if (it != productNameIds.end()) {
         for (int id : it->second) {
-            result.push_back(&products[id]);
+            result.push_back(const_cast<Product*>(&products.at(id)));
         }
     }
     return result;
@@ -103,11 +108,15 @@ vector<Product*> Inventory::getLowStockProducts() const {
 
 // -------------- Supplier Management -------------- //
 
-void Inventory::addSupplier(Supplier supplier) {
-    int id = supplier.getId();
+int Inventory::addSupplier(Supplier supplier) {
+    int id = nextSupplierId++;
+    supplier.setId(id);
+
     suppliers[id] = supplier;
     string name = supplier.getName();
     supplierNameIds[name].insert(id);
+
+    return id;
 }
 bool Inventory::removeSupplier(int supplierId) {
     auto supplierIt = suppliers.find(supplierId);
@@ -127,19 +136,19 @@ bool Inventory::removeSupplier(int supplierId) {
     }
     return false;
 }
-Supplier* Inventory::findSupplierById(int supplierId) {
+Supplier* Inventory::findSupplierById(int supplierId) const {
     auto it = suppliers.find(supplierId);
     if (it != suppliers.end()) {
-        return &(it->second);
+        return const_cast<Supplier*>(&(it->second));
     }
     return nullptr;
 }
-vector<Supplier*> Inventory::findSupplierByName(string name) {
+vector<Supplier*> Inventory::findSupplierByName(string name) const {
     vector<Supplier*> result;
     auto it = supplierNameIds.find(name);
     if (it != supplierNameIds.end()) {
         for (int id : it->second) {
-            result.push_back(&suppliers[id]);
+            result.push_back(const_cast<Supplier*>(&suppliers.at(id)));
         }
     }
     return result;
@@ -155,11 +164,15 @@ vector<Supplier> Inventory::getAllSuppliers() const {
 
 // -------------- Customer Management -------------- //
 
-void Inventory::addCustomer(Customer customer) {
-    int id = customer.getId();
+int Inventory::addCustomer(Customer customer) {
+    int id = nextCustomerId++;
+    customer.setId(id);
+    
     customers[id] = customer;
     string name = customer.getName();
     customerNameIds[name].insert(id);
+
+    return id;
 }
 bool Inventory::removeCustomer(int customerId) {
     auto customerIt = customers.find(customerId);
@@ -186,12 +199,12 @@ Customer* Inventory::findCustomerById(int customerId) const {
     }
     return nullptr;
 }
-vector<Customer*> Inventory::findCustomerByName(string name) {
+vector<Customer*> Inventory::findCustomerByName(string name) const {
     vector<Customer*> result;
     auto it = customerNameIds.find(name);
     if (it != customerNameIds.end()) {
         for (int id : it->second) {
-            result.push_back(&customers[id]);
+            result.push_back(const_cast<Customer*>(&customers.at(id)));
         }
     }
     return result;
@@ -284,10 +297,10 @@ bool Inventory::cancelOrder(int orderId) {
     orderIt->second.setStatus("CANCELLED");
     return true;
 }
-Order* Inventory::findOrderById(int orderId) {
+Order* Inventory::findOrderById(int orderId) const {
     auto it = orders.find(orderId);
     if (it != orders.end()) {
-        return &(it->second);
+        return const_cast<Order*>(&(it->second));
     }
     return nullptr;
 }

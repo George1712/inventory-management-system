@@ -20,32 +20,34 @@ using namespace std;
 class Inventory {
 private:
     // Product
+    int nextProductId;
     unordered_map<int, Product> products;
     unordered_map<string, set<int>> productNameIds;
     set<int> lowStockProductIds;
-    int nextProductId;
 
     // Supplier
+    int nextSupplierId;
     unordered_map<int, Supplier> suppliers;
     unordered_map<string, set<int>> supplierNameIds;
-    
+
     // Customer
+    int nextCustomerId;
     unordered_map<int, Customer> customers;
     unordered_map<string, set<int>> customerNameIds;
 
     // Order
+    int nextOrderId;
     unordered_map<int, Order> orders;
     unordered_map<int, set<int>> customerOrders; // [custID, orders]
-    int nextOrderId;
 
 public:
     Inventory();
 
     // Product management
-    void addProduct(Product product);
+    int addProduct(Product product);
     bool removeProduct(int productId);
-    Product* findProductById(int productId);
-    vector<Product*> findProductsByName(string name);
+    Product* findProductById(int productId) const;
+    vector<Product*> findProductsByName(string name) const;
     bool restockProduct(int productId, int quantity);
     bool sellProduct(int productId, int quantity);
     void updateLowStockStatus(int productId, int newQuantity, int minStockLevel);
@@ -53,17 +55,17 @@ public:
     vector<Product*> getLowStockProducts() const;
     
     // Supplier management
-    void addSupplier(Supplier supplier);
+    int addSupplier(Supplier supplier);
     bool removeSupplier(int supplierId);
-    Supplier* findSupplierById(int supplierId);
-    vector<Supplier*> findSupplierByName(string name);
+    Supplier* findSupplierById(int supplierId) const;
+    vector<Supplier*> findSupplierByName(string name) const;
     vector<Supplier> getAllSuppliers() const;
     
     // Customer management
-    void addCustomer(Customer customer);
+    int addCustomer(Customer customer);
     bool removeCustomer(int customerId);
     Customer* findCustomerById(int customerId) const;
-    vector<Customer*> findCustomerByName(string name);
+    vector<Customer*> findCustomerByName(string name) const;
     vector<Customer> getAllCustomers() const;
     
     // Order management
@@ -73,7 +75,7 @@ public:
     bool updateOrderItemQuantity(int orderId, int productId, int newQuantity);
     bool processOrder(int orderId);
     bool cancelOrder(int orderId);
-    Order* findOrderById(int orderId);
+    Order* findOrderById(int orderId) const;
     vector<Order> getOrdersByCustomer(int customerId) const;
     vector<Order> getOrdersByStatus(string status) const;
     string getOrderSummary(int orderId) const;
