@@ -64,12 +64,16 @@ vector<OrderItem> Order::getItems() const {
     return result;
 }
 
+// Setters
+void Order::setId(int newId) {
+    this->orderId = newId;
+}
 void Order::setStatus(string newStatus) {
-    status = newStatus;
+    this->status = newStatus;
 }
 void Order::updateTotal(double amountChange) {
-    totalAmount += amountChange;
-    totalAmount = max(totalAmount, 0.0);
+    this->totalAmount += amountChange;
+    this->totalAmount = max(totalAmount, 0.0);
 }
 
 void Order::addItem(OrderItem newItem) {

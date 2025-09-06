@@ -58,6 +58,7 @@ public:
     int getItemQuantity(int itemId) const;
     
     // Setters
+    void setId(int newId);
     void setStatus(string newStatus);
     void updateTotal(double amountChange);
 

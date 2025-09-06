@@ -23,6 +23,9 @@ string Supplier::getAddress() const {
 }
 
 // Setters
+void Supplier::setId(int newId) {
+    this->supplierId = newId;
+}
 void Supplier::setPhone(string newPhone) {
     this->phone = newPhone;
 }
