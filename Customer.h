@@ -16,7 +16,8 @@ private:
     vector<int> orderHistory;
 
 public:
-    // Constructor
+    // Constructors
+    Customer() : customerId(0) {}
     Customer(int id, string name, string phone,
          string email, string address);
     

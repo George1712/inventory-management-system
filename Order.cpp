@@ -3,6 +3,7 @@
 OrderItem::OrderItem(int itemId, string itemName, int quantity, double unitPrice) : 
     itemId(itemId), itemName(itemName), quantity(quantity), unitPrice(unitPrice){}
 
+// Getters
 int OrderItem::getItemId() const {
     return itemId;
 }
@@ -16,10 +17,12 @@ double OrderItem::getUnitPrice() const {
     return unitPrice;
 }
 
+void OrderItem::updateQuantity(int newQuantity) {
+    quantity = newQuantity;
+}
 double OrderItem::getTotalPrice() const {
     return quantity * unitPrice;
 }
-
 void OrderItem::display() const {
     cout << "Item ID: " << getItemId() << endl;
     cout << "Item Name: " << getItemName() << endl;
@@ -28,13 +31,13 @@ void OrderItem::display() const {
     cout << "Total Price: " << getTotalPrice() << endl;
 }
 
-// ---------------------------------------------------------
 
 Order::Order(int id, int customerId, string customerName, string date) :
     orderId(id), customerId(customerId), customerName(customerName), orderDate(date),
     status("PENDING"), totalAmount(0.0) {}
 
 
+// Getters
 int Order::getId() const {
     return orderId;
 }
@@ -54,39 +57,70 @@ double Order::getTotalAmount() const {
     return totalAmount;
 }
 vector<OrderItem> Order::getItems() const {
-    return items;
+    vector<OrderItem> result;
+    for (const auto &[id, item] : items) {
+        result.push_back(item);
+    }
+    return result;
 }
 
-// ===== OPTIMIZE HERE ===== //
-
-// Adds an item to the order
-void Order::addItem(OrderItem item) {
-    items.push_back(item);
-    calculateTotal(); // Recalculate the total
+void Order::setStatus(string newStatus) {
+    status = newStatus;
+}
+void Order::updateTotal(double amountChange) {
+    totalAmount += amountChange;
+    totalAmount = max(totalAmount, 0.0);
 }
 
-// Removes an item from the order by product ID
-bool Order::removeItem(int productId) {
-    for (auto it = items.begin(); it != items.end(); ++it) {
-        if (it->getItemId() == productId) {
-            items.erase(it);
-            calculateTotal(); // Recalculate the total
-            return true;
-        }
+void Order::addItem(OrderItem newItem) {
+    int id = newItem.getItemId();
+    auto it = items.find(id);
+    if (it != items.end()) { // already exists
+        OrderItem& existingItem = it->second;
+        updateTotal(-existingItem.getTotalPrice());
+        int newQuantity = existingItem.getQuantity() + newItem.getQuantity();
+        existingItem.updateQuantity(newQuantity);
+        updateTotal(existingItem.getTotalPrice());
+    } else {
+        items[id] = newItem;
+        updateTotal(newItem.getTotalPrice());
+    }
+}
+
+bool Order::removeItem(int itemId) {
+    auto it = items.find(itemId);
+    if (it != items.end()) {
+        updateTotal(-it->second.getTotalPrice());
+        items.erase(it);
+        return true;
     }
     return false;
 }
 
-// Calculates the total amount of the order
-void Order::calculateTotal() {
-    totalAmount = 0.0;
-    for (const auto& item : items) {
-        totalAmount += item.getTotalPrice();
+bool Order::updateItemQuantity(int itemId, int newQuantity) {
+    auto it = items.find(itemId);
+    if (it != items.end() && newQuantity >= 0) {
+        updateTotal(-it->second.getTotalPrice()); // Remove old total
+        it->second.updateQuantity(newQuantity);   // Update quantity
+        updateTotal(it->second.getTotalPrice());  // Add new total
+        return true;
     }
+    return false;
 }
-// Updates the status of the order
-void Order::setStatus(string newStatus) {
-    status = newStatus;
+
+int Order::getItemQuantity(int itemId) const {
+    auto it = items.find(itemId);
+    return (it != items.end()) ? it->second.getQuantity() : 0;
+}
+
+bool Order::isPending() const {
+    return status == "PENDING";
+}
+bool Order::isCompleted() const {
+    return status == "COMPLETED";
+}
+bool Order::isCancelled() const {
+    return status == "CANCELLED";
 }
 
 void Order::display() const {
@@ -96,7 +130,7 @@ void Order::display() const {
     cout << "Order Date: " << getOrderDate() << endl;
     cout << "Status: " << getStatus() << endl;
     cout << "Items:" << endl;
-    for (const auto& item : items) {
+    for (const auto &[id, item] : items) {
         item.display();
         cout << endl;
     }

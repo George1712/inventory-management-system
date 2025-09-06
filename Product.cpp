@@ -50,7 +50,6 @@ void Product::updateQuantity(int amount) {
 bool Product::isLowStock() const {
     return quantityInStock < minStockLevel;
 }
-
 void Product::display() const {
     cout << "Product ID: " << productID << endl;
     cout << "Name: " << name << endl;
