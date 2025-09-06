@@ -106,12 +106,10 @@ void handleProductManagement(Inventory& inventory) {
                 cout << "Enter minimum stock level: ";
                 cin >> minStock;
                 
-                // Generate a product ID (in a real system, this would be auto-incremented)
-                int productId = rand() % 1000 + 100;
-                Product newProduct(productId, name, description, price, quantity, supplierId, minStock);
-                inventory.addProduct(newProduct);
+                Product newProduct(0, name, description, price, quantity, supplierId, minStock);
+                int productId = inventory.addProduct(newProduct);
                 
-                cout << "Product added successfully with ID: " << productId << endl;
+                cout << productId << endl;
                 break;
             }
             case 2: {
@@ -246,9 +244,8 @@ void handleSupplierManagement(Inventory& inventory) {
                 cout << "Enter supplier address: ";
                 getline(cin, address);
                 
-                int supplierId = rand() % 1000 + 100;
-                Supplier newSupplier(supplierId, name, phone, email, address);
-                inventory.addSupplier(newSupplier);
+                Supplier newSupplier(0, name, phone, email, address);
+                int supplierId = inventory.addSupplier(newSupplier);
                 
                 cout << "Supplier added successfully with ID: " << supplierId << endl;
                 break;
@@ -342,9 +339,8 @@ void handleCustomerManagement(Inventory& inventory) {
                 cout << "Enter customer address: ";
                 getline(cin, address);
                 
-                int customerId = rand() % 1000 + 100;
-                Customer newCustomer(customerId, name, phone, email, address);
-                inventory.addCustomer(newCustomer);
+                Customer newCustomer(0, name, phone, email, address);
+                int customerId = inventory.addCustomer(newCustomer);
                 
                 cout << "Customer added successfully with ID: " << customerId << endl;
                 break;

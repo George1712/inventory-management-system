@@ -44,7 +44,7 @@ public:
     Inventory();
 
     // Product management
-    void addProduct(Product product);
+    int addProduct(Product product);
     bool removeProduct(int productId);
     Product* findProductById(int productId) const;
     vector<Product*> findProductsByName(string name) const;
@@ -55,14 +55,14 @@ public:
     vector<Product*> getLowStockProducts() const;
     
     // Supplier management
-    void addSupplier(Supplier supplier);
+    int addSupplier(Supplier supplier);
     bool removeSupplier(int supplierId);
     Supplier* findSupplierById(int supplierId) const;
     vector<Supplier*> findSupplierByName(string name) const;
     vector<Supplier> getAllSuppliers() const;
     
     // Customer management
-    void addCustomer(Customer customer);
+    int addCustomer(Customer customer);
     bool removeCustomer(int customerId);
     Customer* findCustomerById(int customerId) const;
     vector<Customer*> findCustomerByName(string name) const;

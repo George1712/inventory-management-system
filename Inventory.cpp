@@ -8,7 +8,7 @@ nextSupplierId(1), nextCustomerId(1) {}
 
 // -------------- Product Management -------------- //
 
-void Inventory::addProduct(Product product) {
+int Inventory::addProduct(Product product) {
     int id = nextProductId++;
     product.setId(id);
 
@@ -17,6 +17,7 @@ void Inventory::addProduct(Product product) {
     productNameIds[name].insert(id);
 
     updateLowStockStatus(id, product.getQuantity(), product.getMinStockLevel());
+    return id;
 }
 bool Inventory::removeProduct(int productId) {
     auto productIt = products.find(productId); // = [id, Product]
@@ -107,13 +108,15 @@ vector<Product*> Inventory::getLowStockProducts() const {
 
 // -------------- Supplier Management -------------- //
 
-void Inventory::addSupplier(Supplier supplier) {
+int Inventory::addSupplier(Supplier supplier) {
     int id = nextSupplierId++;
     supplier.setId(id);
 
     suppliers[id] = supplier;
     string name = supplier.getName();
     supplierNameIds[name].insert(id);
+
+    return id;
 }
 bool Inventory::removeSupplier(int supplierId) {
     auto supplierIt = suppliers.find(supplierId);
@@ -161,13 +164,15 @@ vector<Supplier> Inventory::getAllSuppliers() const {
 
 // -------------- Customer Management -------------- //
 
-void Inventory::addCustomer(Customer customer) {
+int Inventory::addCustomer(Customer customer) {
     int id = nextCustomerId++;
     customer.setId(id);
     
     customers[id] = customer;
     string name = customer.getName();
     customerNameIds[name].insert(id);
+
+    return id;
 }
 bool Inventory::removeCustomer(int customerId) {
     auto customerIt = customers.find(customerId);
