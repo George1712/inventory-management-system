@@ -1,5 +1,7 @@
 #include <iostream>
 #include <string>
+#include <climits>
+#include <limits>
 
 #include "Inventory.h"
 #include "Product.h"
@@ -8,6 +10,13 @@
 #include "Order.h"
 
 using namespace std;
+
+// helper functions to validate input
+int getValidatedInt(const string& prompt, int min = INT_MIN, int max = INT_MAX);
+double getValidatedDouble(const string& prompt, double min = 0.0);
+string getValidatedString(const string& prompt, bool allowEmpty = false);
+string getValidatedStatus(const string& prompt);
+bool getYesNoInput(const string& prompt);
 
 void displayMainMenu();
 void handleProductManagement(Inventory& inventory);
@@ -87,45 +96,38 @@ void handleProductManagement(Inventory& inventory) {
         
         switch(choice) {
             case 1: {
-                string name, description;
-                double price;
-                int quantity, supplierId, minStock;
-                
-                cout << "Enter product name: ";
-                getline(cin, name);
-                cout << "Enter product description: ";
-                getline(cin, description);
-                cout << "Enter price: ";
-                cin >> price;
-                cout << "Enter quantity: ";
-                cin >> quantity;
-                cout << "Enter supplier ID: ";
-                cin >> supplierId;
-                cout << "Enter minimum stock level: ";
-                cin >> minStock;
-                
+                string name = getValidatedString("Enter product name: ");
+                string description = getValidatedString("Enter product description: ", true);
+                double price = getValidatedDouble("Enter price: ", 0.01);
+                int quantity = getValidatedInt("Enter quantity: ", 0);
+                int supplierId = getValidatedInt("Enter supplier ID: ", 1);
+                if (!inventory.findSupplierById(supplierId)) {
+                    cout << "Error: Supplier with ID " << supplierId << " does not exist." << endl;
+                    break;
+                }
+                int minStock = getValidatedInt("Enter minimum stock level: ", 0);
+
                 Product newProduct(0, name, description, price, quantity, supplierId, minStock);
                 int productId = inventory.addProduct(newProduct);
                 
-                cout << "Product added successfully with ID: " << supplierId << endl;
+                cout << "Product added successfully with ID: " << productId << endl;
                 break;
             }
             case 2: {
-                int productId;
-                cout << "Enter product ID to remove: ";
-                cin >> productId;
-                
-                if(inventory.removeProduct(productId)) {
-                    cout << "Product removed successfully." << endl;
+                int productId = getValidatedInt("Enter product ID to remove: ", 1);
+                if (getYesNoInput("Are you sure you want to remove this product?")) {
+                    if(inventory.removeProduct(productId)) {
+                        cout << "Product removed successfully." << endl;
+                    } else {
+                        cout << "Product not found." << endl;
+                    }
                 } else {
-                    cout << "Product not found." << endl;
+                    cout << "Operation cancelled." << endl;
                 }
                 break;
             }
             case 3: {
-                int productId;
-                cout << "Enter product ID to find: ";
-                cin >> productId;
+                int productId = getValidatedInt("Enter product ID to find: ", 1);
                 
                 Product* product = inventory.findProductById(productId);
                 if(product) {
@@ -136,9 +138,7 @@ void handleProductManagement(Inventory& inventory) {
                 break;
             }
             case 4: {
-                string name;
-                cout << "Enter product name to search: ";
-                getline(cin, name);
+                string name = getValidatedString("Enter product name to search: ");
                 
                 vector<Product*> products = inventory.findProductsByName(name);
                 if(products.empty()) {
@@ -152,11 +152,8 @@ void handleProductManagement(Inventory& inventory) {
                 break;
             }
             case 5: {
-                int productId, quantity;
-                cout << "Enter product ID to restock: ";
-                cin >> productId;
-                cout << "Enter quantity to add: ";
-                cin >> quantity;
+                int productId = getValidatedInt("Enter product ID to restock: ", 1);
+                int quantity = getValidatedInt("Enter quantity to add: ", 1);
                 
                 if(inventory.restockProduct(productId, quantity)) {
                     cout << "Product restocked successfully." << endl;
@@ -166,11 +163,8 @@ void handleProductManagement(Inventory& inventory) {
                 break;
             }
             case 6: {
-                int productId, quantity;
-                cout << "Enter product ID to sell: ";
-                cin >> productId;
-                cout << "Enter quantity to sell: ";
-                cin >> quantity;
+                int productId = getValidatedInt("Enter product ID to sell: ", 1);
+                int quantity = getValidatedInt("Enter quantity to sell: ", 1);
                 
                 if(inventory.sellProduct(productId, quantity)) {
                     cout << "Product sold successfully." << endl;
@@ -180,11 +174,8 @@ void handleProductManagement(Inventory& inventory) {
                 break;
             }
             case 7: {
-                int productId, newMinStock;
-                cout << "Enter product ID: ";
-                cin >> productId;
-                cout << "Enter new minimum stock level: ";
-                cin >> newMinStock;
+                int productId = getValidatedInt("Enter product ID: ", 1);
+                int newMinStock = getValidatedInt("Enter new minimum stock level: ", 0);
                 
                 if(inventory.updateProductMinStockLevel(productId, newMinStock)) {
                     cout << "Minimum stock level updated successfully." << endl;
@@ -231,16 +222,10 @@ void handleSupplierManagement(Inventory& inventory) {
         
         switch(choice) {
             case 1: {
-                string name, phone, email, address;
-                
-                cout << "Enter supplier name: ";
-                getline(cin, name);
-                cout << "Enter supplier phone: ";
-                getline(cin, phone);
-                cout << "Enter supplier email: ";
-                getline(cin, email);
-                cout << "Enter supplier address: ";
-                getline(cin, address);
+                string name = getValidatedString("Enter supplier name: ");
+                string phone = getValidatedString("Enter supplier phone: ");
+                string email = getValidatedString("Enter supplier email: ");
+                string address = getValidatedString("Enter supplier address: ");
                 
                 Supplier newSupplier(0, name, phone, email, address);
                 int supplierId = inventory.addSupplier(newSupplier);
@@ -249,21 +234,21 @@ void handleSupplierManagement(Inventory& inventory) {
                 break;
             }
             case 2: {
-                int supplierId;
-                cout << "Enter supplier ID to remove: ";
-                cin >> supplierId;
+                int supplierId = getValidatedInt("Enter supplier ID to remove: ", 1);
                 
-                if(inventory.removeSupplier(supplierId)) {
-                    cout << "Supplier removed successfully." << endl;
+                if (getYesNoInput("Are you sure you want to remove this supplier?")) {
+                    if(inventory.removeSupplier(supplierId)) {
+                        cout << "Supplier removed successfully." << endl;
+                    } else {
+                        cout << "Supplier not found." << endl;
+                    }
                 } else {
-                    cout << "Supplier not found." << endl;
+                    cout << "Operation cancelled." << endl;
                 }
                 break;
             }
             case 3: {
-                int supplierId;
-                cout << "Enter supplier ID to find: ";
-                cin >> supplierId;
+                int supplierId = getValidatedInt("Enter supplier ID to find: ", 1);
                 
                 Supplier* supplier = inventory.findSupplierById(supplierId);
                 if(supplier) {
@@ -274,9 +259,7 @@ void handleSupplierManagement(Inventory& inventory) {
                 break;
             }
             case 4: {
-                string name;
-                cout << "Enter supplier name to search: ";
-                getline(cin, name);
+                string name = getValidatedString("Enter supplier name: ");
                 
                 vector<Supplier*> suppliers = inventory.findSupplierByName(name);
                 if(suppliers.empty()) {
@@ -326,16 +309,10 @@ void handleCustomerManagement(Inventory& inventory) {
         
         switch(choice) {
             case 1: {
-                string name, phone, email, address;
-                
-                cout << "Enter customer name: ";
-                getline(cin, name);
-                cout << "Enter customer phone: ";
-                getline(cin, phone);
-                cout << "Enter customer email: ";
-                getline(cin, email);
-                cout << "Enter customer address: ";
-                getline(cin, address);
+                string name = getValidatedString("Enter customer name: ");
+                string phone = getValidatedString("Enter customer phone: ");
+                string email = getValidatedString("Enter customer email: ");
+                string address = getValidatedString("Enter customer address: ");
                 
                 Customer newCustomer(0, name, phone, email, address);
                 int customerId = inventory.addCustomer(newCustomer);
@@ -344,21 +321,21 @@ void handleCustomerManagement(Inventory& inventory) {
                 break;
             }
             case 2: {
-                int customerId;
-                cout << "Enter customer ID to remove: ";
-                cin >> customerId;
+                int customerId = getValidatedInt("Enter customer ID to remove: ", 1);
                 
-                if(inventory.removeCustomer(customerId)) {
-                    cout << "Customer removed successfully." << endl;
+                if (getYesNoInput("Are you sure you want to remove this customer?")) {
+                    if(inventory.removeCustomer(customerId)) {
+                        cout << "Customer removed successfully." << endl;
+                    } else {
+                        cout << "Customer not found." << endl;
+                    }
                 } else {
-                    cout << "Customer not found." << endl;
+                    cout << "Operation cancelled." << endl;
                 }
                 break;
             }
             case 3: {
-                int customerId;
-                cout << "Enter customer ID to find: ";
-                cin >> customerId;
+                int customerId = getValidatedInt("Enter customer ID to find: ", 1);
                 
                 Customer* customer = inventory.findCustomerById(customerId);
                 if(customer) {
@@ -369,9 +346,7 @@ void handleCustomerManagement(Inventory& inventory) {
                 break;
             }
             case 4: {
-                string name;
-                cout << "Enter customer name to search: ";
-                getline(cin, name);
+                string name = getValidatedString("Enter customer name: ");
                 
                 vector<Customer*> customers = inventory.findCustomerByName(name);
                 if(customers.empty()) {
@@ -423,10 +398,8 @@ void handleOrderManagement(Inventory& inventory) {
         
         switch(choice) {
             case 1: {
-                int customerId;
-                cout << "Enter customer ID: ";
-                cin >> customerId;
-                
+                int customerId = getValidatedInt("Enter customer ID: ", 1);
+                                
                 Order* newOrder = inventory.createOrder(customerId);
                 if(newOrder) {
                     cout << "Order created successfully with ID: " << newOrder->getId() << endl;
@@ -436,14 +409,18 @@ void handleOrderManagement(Inventory& inventory) {
                 break;
             }
             case 2: {
-                int orderId, productId, quantity;
-                cout << "Enter order ID: ";
-                cin >> orderId;
-                cout << "Enter product ID: ";
-                cin >> productId;
-                cout << "Enter quantity: ";
-                cin >> quantity;
-                
+                int orderId = getValidatedInt("Enter order ID: ", 1);
+                if (!inventory.findOrderById(orderId)) {
+                    cout << "Error: Order with ID " << orderId << " does not exist." << endl;
+                    break;
+                }
+                int productId = getValidatedInt("Enter product ID: ", 1);
+                if (!inventory.findProductById(productId)) {
+                    cout << "Error: Product with ID " << productId << " does not exist." << endl;
+                    break;
+                }
+                int quantity = getValidatedInt("Enter quantity: ", 1);
+
                 if(inventory.addItemToOrder(orderId, productId, quantity)) {
                     cout << "Item added to order successfully." << endl;
                 } else {
@@ -452,10 +429,11 @@ void handleOrderManagement(Inventory& inventory) {
                 break;
             }
             case 3: {
-                int orderId;
-                cout << "Enter order ID to process: ";
-                cin >> orderId;
-                
+                int orderId = getValidatedInt("Enter order ID to process: ", 1);                
+                if (!inventory.findOrderById(orderId)) {
+                    cout << "Error: Order with ID " << orderId << " does not exist." << endl;
+                    break;
+                }
                 if(inventory.processOrder(orderId)) {
                     cout << "Order processed successfully." << endl;
                 } else {
@@ -464,22 +442,25 @@ void handleOrderManagement(Inventory& inventory) {
                 break;
             }
             case 4: {
-                int orderId;
-                cout << "Enter order ID to cancel: ";
-                cin >> orderId;
-                
-                if(inventory.cancelOrder(orderId)) {
-                    cout << "Order cancelled successfully." << endl;
-                } else {
-                    cout << "Failed to cancel order." << endl;
+                int orderId = getValidatedInt("Enter order ID to cancel: ", 1);
+                if (!inventory.findOrderById(orderId)) {
+                    cout << "Error: Order with ID " << orderId << " does not exist." << endl;
+                    break;
                 }
+                if (getYesNoInput("Are you sure you want to cancel this order?")) {
+                    if(inventory.cancelOrder(orderId)) {
+                        cout << "Order cancelled successfully." << endl;
+                    } else {
+                        cout << "Failed to cancel order." << endl;
+                    }
+                } else {
+                    cout << "Operation cancelled." << endl;
+                }
+
                 break;
             }
             case 5: {
-                int orderId;
-                cout << "Enter order ID to find: ";
-                cin >> orderId;
-                
+                int orderId = getValidatedInt("Enter order ID to find: ", 1);                
                 Order* order = inventory.findOrderById(orderId);
                 if(order) {
                     order->display();
@@ -489,10 +470,8 @@ void handleOrderManagement(Inventory& inventory) {
                 break;
             }
             case 6: {
-                int customerId;
-                cout << "Enter customer ID: ";
-                cin >> customerId;
-                
+                int customerId = getValidatedInt("Enter customer ID: ", 1);
+
                 vector<Order> orders = inventory.getOrdersByCustomer(customerId);
                 if(orders.empty()) {
                     cout << "No orders found for this customer." << endl;
@@ -505,10 +484,8 @@ void handleOrderManagement(Inventory& inventory) {
                 break;
             }
             case 7: {
-                string status;
-                cout << "Enter status to filter by (PENDING, PROCESSING, COMPLETED, CANCELLED): ";
-                getline(cin, status);
-                
+                string status = getValidatedStatus("Enter status to filter by (PENDING, COMPLETED, CANCELLED): ");
+
                 vector<Order> orders = inventory.getOrdersByStatus(status);
                 if(orders.empty()) {
                     cout << "No orders found with status: " << status << endl;
@@ -555,9 +532,11 @@ void handleReports(Inventory& inventory) {
                 inventory.generateLowStockReport();
                 break;
             case 4: {
-                int customerId;
-                cout << "Enter customer ID: ";
-                cin >> customerId;
+                int customerId = getValidatedInt("Enter customer ID: ", 1);
+                 if (!inventory.findCustomerById(customerId)) {
+                    cout << "Error: Customer with ID " << customerId << " does not exist." << endl;
+                    break;
+                }
                 inventory.generateCustomerReport(customerId);
                 break;
             }
@@ -565,9 +544,11 @@ void handleReports(Inventory& inventory) {
                 inventory.generateSupplierReport();
                 break;
             case 6: {
-                int orderId;
-                cout << "Enter order ID: ";
-                cin >> orderId;
+                int orderId = getValidatedInt("Enter order ID: ", 1);
+                if (!inventory.findOrderById(orderId)) {
+                    cout << "Error: Order with ID " << orderId << " does not exist." << endl;
+                    break;
+                }
                 cout << inventory.getOrderSummary(orderId) << endl;
                 break;
             }
@@ -580,8 +561,82 @@ void handleReports(Inventory& inventory) {
     } while(choice);
 }
 
+
 void clearInputBuffer() {
     cin.clear();
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 }
 
+// Validation Functions
+int getValidatedInt(const string& prompt, int min, int max) {
+    int value;
+    while (true) {
+        cout << prompt;
+        if (cin >> value && value >= min && value <= max) {
+            clearInputBuffer();
+            return value;
+        } else {
+            cout << "Invalid input. Please enter an integer between "
+                 << min << " and " << max << "." << endl;
+            cin.clear();
+            clearInputBuffer();
+        }
+    }
+}
+double getValidatedDouble(const string& prompt, double min) {
+    double value;
+    while (true) {
+        cout << prompt;
+        if (cin >> value && value >= min) {
+            clearInputBuffer();
+            return value;
+        } else {
+            cout << "Invalid input. Please enter a number greater than or equal to " << min << "." << endl;
+            cin.clear();
+            clearInputBuffer();
+        }
+    }
+}
+string getValidatedString(const string& prompt, bool allowEmpty) {
+    string value;
+    while (true) {
+        cout << prompt;
+        getline(cin, value);
+        if (!value.empty() || allowEmpty) {
+            return value;
+        } else {
+            cout << "Invalid input. This field cannot be empty." << endl;
+        }
+    }
+}
+string getValidatedStatus(const string& prompt) {
+    string status;
+    while (true) {
+        cout << prompt;
+        getline(cin, status);
+        for (char &c : status) {
+            if (c >= 'a' && c <= 'z') {
+                c = c - 'a' + 'A';
+            }
+        }
+        if (status == "PENDING" || status == "COMPLETED" || status == "CANCELLED") {
+            return status;
+        } else {
+            cout << "Invalid status. Please enter PENDING, COMPLETED, or CANCELLED." << endl;
+        }
+    }
+}
+bool getYesNoInput(const string& prompt) {
+    string input;
+    while (true) {
+        cout << prompt << " (y/n): ";
+        getline(cin, input);
+        if (input == "y" || input == "Y") {
+            return true;
+        } else if (input == "n" || input == "N") {
+            return false;
+        } else {
+            cout << "Invalid input. Please enter 'y' or 'n'." << endl;
+        }
+    }
+}
