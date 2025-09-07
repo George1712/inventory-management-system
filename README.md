@@ -31,6 +31,22 @@ manage supplier and customer information, and generate comprehensive business re
     
 - **Design choices:** Core logic is implemented as plain C++ classes with minimal dependencies so it can be reused or wrapped by other interfaces later (e.g., GUI or web API).
 
+
+## Quick Start
+
+```bash
+# Clone and navigate to project
+git clone https://github.com/your-username/InventoryManagementSystem.git
+cd InventoryManagementSystem
+
+# Compile
+g++ -Iinclude src/*.cpp -o inventory_system
+
+# Run
+./inventory_system
+```
+
+
 ## Future improvements
 
 - Add persistence (JSON files or SQLite) and load/save at startup/shutdown.
